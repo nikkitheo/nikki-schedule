@@ -203,6 +203,45 @@
     .notice-icon { font-size: 1.125rem; flex-shrink: 0; margin-top: 1px; }
     .notice strong { font-weight: 600; display: block; margin-bottom: 4px; }
 
+    /* ── Timezone bar ─────────────────────────────── */
+    .tz-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      background: var(--card);
+      border: 1px solid var(--grid-line);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      flex-wrap: wrap;
+    }
+    .tz-bar label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+    .tz-select {
+      appearance: none;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--grid-line);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      min-width: 220px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .tz-select:focus {
+      outline: none;
+      box-shadow: var(--shadow-glow);
+      border-color: var(--accent);
+    }
+
     /* ── Controls bar ──────────────────────────────── */
     .controls {
       display: flex;
@@ -287,37 +326,6 @@
       border: 1.5px solid var(--busy-border);
     }
 
-    .controls-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .refresh-btn {
-      background: var(--card);
-      border: 1px solid var(--grid-line);
-      border-radius: 980px;
-      padding: 8px 14px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      cursor: pointer;
-      box-shadow: var(--shadow-sm);
-      transition: all var(--transition);
-    }
-    .refresh-btn:hover {
-      background: var(--accent-light);
-      color: var(--accent);
-      transform: translateY(-1px);
-    }
-    .refresh-btn:disabled {
-      opacity: 0.6;
-      cursor: default;
-      transform: none;
-      box-shadow: none;
-    }
-
     /* ── Calendar card ─────────────────────────────── */
     .cal-card {
       background: var(--card);
@@ -331,7 +339,7 @@
     /* Day header row */
     .cal-header {
       display: grid;
-      grid-template-columns: 56px repeat(7, 1fr);
+      grid-template-columns: 52px repeat(7, 1fr);
       border-bottom: 1px solid var(--grid-line);
       background: var(--bg-secondary);
     }
@@ -339,7 +347,7 @@
     .col-time-hdr { /* spacer */ }
 
     .day-hdr {
-      padding: 16px 8px 14px;
+      padding: 14px 6px 12px;
       text-align: center;
       border-left: 1px solid var(--grid-line);
       transition: background var(--transition);
@@ -359,22 +367,22 @@
     }
 
     .day-hdr .dow {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--text-tertiary);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .day-hdr.today .dow { color: var(--accent); }
 
     .day-hdr .dom {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--text-primary);
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -391,18 +399,18 @@
     /* Body grid */
     .cal-body {
       display: grid;
-      grid-template-columns: 56px repeat(7, 1fr);
+      grid-template-columns: 52px repeat(7, 1fr);
     }
 
     .col-time { /* time labels */ }
 
     .time-tick {
-      height: 56px;
+      height: 48px;
       display: flex;
       align-items: flex-start;
       justify-content: flex-end;
-      padding: 6px 12px 0 0;
-      font-size: 0.7rem;
+      padding: 6px 10px 0 0;
+      font-size: 0.65rem;
       font-weight: 500;
       letter-spacing: 0.02em;
       color: var(--text-tertiary);
@@ -419,7 +427,7 @@
     }
 
     .bg-slot {
-      height: 56px;
+      height: 48px;
       border-top: 1px solid var(--grid-line);
     }
     .bg-slot:first-child { border-top: none; }
@@ -486,11 +494,11 @@
       }
       header h1 { font-size: 1.25rem; }
       .container { padding: 20px 16px 60px; }
-      .cal-header, .cal-body { grid-template-columns: 44px repeat(7, 1fr); }
-      .time-tick { padding-right: 8px; font-size: 0.6rem; }
+      .cal-header, .cal-body { grid-template-columns: 40px repeat(7, 1fr); }
+      .time-tick { padding-right: 6px; font-size: 0.55rem; }
       .day-hdr { padding: 10px 4px; }
       .day-hdr .dow { font-size: 0.6rem; }
-      .day-hdr .dom { font-size: 1rem; width: 30px; height: 30px; }
+      .day-hdr .dom { font-size: 0.95rem; width: 28px; height: 28px; }
       .week-label { font-size: 0.85rem; min-width: 160px; }
       .legend { gap: 12px; font-size: 0.75rem; }
       .event-block { left: 2px; right: 2px; font-size: 0.6rem; padding: 2px 4px; }
@@ -499,6 +507,8 @@
     @media (max-width: 480px) {
       .cal-header, .cal-body { grid-template-columns: repeat(7, 1fr); }
       .col-time-hdr, .col-time { display: none; }
+      .tz-bar { align-items: flex-start; }
+      .tz-select { width: 100%; }
       .controls { flex-direction: column; align-items: stretch; }
       .week-nav { justify-content: center; }
     }
@@ -535,20 +545,20 @@
     </div>
   </div>
 
+  <div class="tz-bar">
+    <label for="tz-select">Time zone</label>
+    <select id="tz-select" class="tz-select" aria-label="Select time zone"></select>
+  </div>
+
   <div class="controls">
     <div class="week-nav">
       <button onclick="changeWeek(-1)" aria-label="Previous week">‹</button>
       <span class="week-label" id="week-label"></span>
       <button onclick="changeWeek(1)" aria-label="Next week">›</button>
     </div>
-    <div class="controls-right">
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot free"></div>Available</div>
-        <div class="legend-item"><div class="legend-dot busy"></div>Busy</div>
-      </div>
-      <button id="refresh-btn" class="refresh-btn" onclick="refreshSchedule()" aria-label="Refresh schedule">
-        Refresh
-      </button>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot free"></div>Available</div>
+      <div class="legend-item"><div class="legend-dot busy"></div>Busy</div>
     </div>
   </div>
 
@@ -558,6 +568,7 @@
 
   <div class="cal-footer" id="cal-footer" style="display:none">
     <span id="last-updated-label"></span>
+    <span id="timezone-label"></span>
   </div>
 
 </div>
@@ -586,30 +597,95 @@ setTheme(getPreferredTheme());
 /* ─── Constants ─────────────────────────────────────── */
 const DOW  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const PX_PER_HOUR = 56;
+const PX_PER_HOUR = 48;
 
 /* ─── State ─────────────────────────────────────────── */
 let data          = null;
 let weekOffset    = 0;
 let workStart     = 8;
 let workEnd       = 19;
+let displayTz     = 'Etc/GMT';
+let tzLoaded      = false;
 
 /* ─── Helpers ───────────────────────────────────────── */
-function getMondayOf(d) {
-  const t = new Date(d);
-  const dow = t.getDay();
-  t.setDate(t.getDate() - (dow === 0 ? 6 : dow - 1));
-  t.setHours(0, 0, 0, 0);
-  return t;
+const WEEKDAY_INDEX = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+
+function getZonedParts(date, timeZone) {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).formatToParts(date);
+
+  const map = {};
+  for (const p of parts) {
+    if (p.type !== 'literal') map[p.type] = p.value;
+  }
+
+  let hour = Number(map.hour);
+  if (hour === 24) hour = 0;
+
+  return {
+    year: Number(map.year),
+    month: Number(map.month),
+    day: Number(map.day),
+    hour,
+    minute: Number(map.minute),
+    second: Number(map.second),
+    weekday: map.weekday
+  };
 }
 
-function fmt(d) {
-  return `${d.getDate()} ${MONS[d.getMonth()]}`;
+function getTimeZoneOffsetMs(date, timeZone) {
+  const parts = getZonedParts(date, timeZone);
+  const asUTC = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+  return asUTC - date.getTime();
 }
 
-function isToday(d) {
-  const n = new Date();
-  return d.getDate() === n.getDate() && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
+function zonedTimeToDate(y, m, d, h, min, s, timeZone) {
+  let date = new Date(Date.UTC(y, m - 1, d, h, min, s));
+  let offset = getTimeZoneOffsetMs(date, timeZone);
+  date = new Date(date.getTime() - offset);
+  const offset2 = getTimeZoneOffsetMs(date, timeZone);
+  if (offset !== offset2) {
+    date = new Date(date.getTime() - offset2);
+  }
+  return date;
+}
+
+function addDaysToParts(parts, delta) {
+  const d = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+  d.setUTCDate(d.getUTCDate() + delta);
+  return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() };
+}
+
+function getWeekStartParts(timeZone, offsetWeeks) {
+  const nowParts = getZonedParts(new Date(), timeZone);
+  const weekdayIndex = WEEKDAY_INDEX[nowParts.weekday] ?? 1;
+  const daysFromMonday = (weekdayIndex + 6) % 7;
+  let monday = addDaysToParts(nowParts, -daysFromMonday);
+  monday = addDaysToParts(monday, offsetWeeks * 7);
+  return monday;
+}
+
+function fmtParts(parts) {
+  return `${parts.day} ${MONS[parts.month - 1]}`;
+}
+
+function fmtWeekday(parts) {
+  const d = zonedTimeToDate(parts.year, parts.month, parts.day, 12, 0, 0, displayTz);
+  return new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: displayTz }).format(d);
+}
+
+function isTodayParts(parts) {
+  const today = getZonedParts(new Date(), displayTz);
+  return parts.year === today.year && parts.month === today.month && parts.day === today.day;
 }
 
 function fmtTime(hour) {
@@ -618,29 +694,91 @@ function fmtTime(hour) {
   return hour < 12 ? `${hour}am` : `${hour - 12}pm`;
 }
 
+function getTimeZoneLabel(date, timeZone) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone,
+      timeZoneName: 'short'
+    }).formatToParts(date);
+    const tz = parts.find(p => p.type === 'timeZoneName');
+    return tz ? tz.value : timeZone;
+  } catch {
+    return timeZone;
+  }
+}
+
+function getTimeZoneOptions() {
+  if (Intl.supportedValuesOf) {
+    return Intl.supportedValuesOf('timeZone');
+  }
+  return [
+    'Etc/GMT',
+    'Europe/London',
+    'Europe/Paris',
+    'Europe/Berlin',
+    'America/New_York',
+    'America/Chicago',
+    'America/Denver',
+    'America/Los_Angeles',
+    'America/Sao_Paulo',
+    'Asia/Dubai',
+    'Asia/Kolkata',
+    'Asia/Singapore',
+    'Asia/Tokyo',
+    'Australia/Sydney'
+  ];
+}
+
+function initTimezoneSelect() {
+  if (tzLoaded) return;
+  const select = document.getElementById('tz-select');
+  if (!select) return;
+
+  const zones = getTimeZoneOptions();
+  for (const tz of zones) {
+    const opt = document.createElement('option');
+    opt.value = tz;
+    opt.textContent = tz === 'Etc/GMT' ? 'GMT (Etc/GMT)' : tz;
+    select.appendChild(opt);
+  }
+
+  select.addEventListener('change', (e) => {
+    setDisplayTimezone(e.target.value);
+  });
+
+  tzLoaded = true;
+}
+
+function setDisplayTimezone(tz, opts = { render: true }) {
+  displayTz = tz || 'Etc/GMT';
+  const select = document.getElementById('tz-select');
+  if (select) {
+    const has = Array.from(select.options).some(o => o.value === displayTz);
+    if (!has) displayTz = 'Etc/GMT';
+    if (select.value !== displayTz) select.value = displayTz;
+  }
+  localStorage.setItem('displayTz', displayTz);
+  if (opts.render) renderWeek();
+}
+
 /* ─── Render ────────────────────────────────────────── */
 function renderWeek() {
   if (!data) return;
 
-  const baseMonday = getMondayOf(new Date());
-  const weekStart  = new Date(baseMonday);
-  weekStart.setDate(baseMonday.getDate() + weekOffset * 7);
-
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 7);
+  const weekStartParts = getWeekStartParts(displayTz, weekOffset);
+  const weekEndParts = addDaysToParts(weekStartParts, 7);
+  const weekStart = zonedTimeToDate(weekStartParts.year, weekStartParts.month, weekStartParts.day, 0, 0, 0, displayTz);
+  const weekEnd = zonedTimeToDate(weekEndParts.year, weekEndParts.month, weekEndParts.day, 0, 0, 0, displayTz);
 
   // Week label
-  const labelEnd = new Date(weekStart);
-  labelEnd.setDate(weekStart.getDate() + 6);
+  const labelEndParts = addDaysToParts(weekStartParts, 6);
   document.getElementById('week-label').textContent =
-    `${fmt(weekStart)} – ${fmt(labelEnd)} ${labelEnd.getFullYear()}`;
+    `${fmtParts(weekStartParts)} – ${fmtParts(labelEndParts)} ${labelEndParts.year}`;
 
   // Build days array (Mon → Sun)
   const days = [];
   for (let i = 0; i < 7; i++) {
-    const d = new Date(weekStart);
-    d.setDate(weekStart.getDate() + i);
-    days.push(d);
+    days.push(addDaysToParts(weekStartParts, i));
   }
 
   // Filter events to this week
@@ -658,10 +796,10 @@ function renderWeek() {
   h += '<div class="cal-header">';
   h += '<div class="col-time-hdr"></div>';
   for (const d of days) {
-    const cls = isToday(d) ? 'day-hdr today' : 'day-hdr';
+    const cls = isTodayParts(d) ? 'day-hdr today' : 'day-hdr';
     h += `<div class="${cls}">
-      <div class="dow">${DOW[d.getDay()]}</div>
-      <div class="dom">${d.getDate()}</div>
+      <div class="dow">${fmtWeekday(d)}</div>
+      <div class="dom">${d.day}</div>
     </div>`;
   }
   h += '</div>';
@@ -678,10 +816,10 @@ function renderWeek() {
 
   /* Day columns */
   for (const d of days) {
-    const dayStart = new Date(d); dayStart.setHours(workStart, 0, 0, 0);
-    const dayEnd   = new Date(d); dayEnd.setHours(workEnd,   0, 0, 0);
+    const dayStart = zonedTimeToDate(d.year, d.month, d.day, workStart, 0, 0, displayTz);
+    const dayEnd   = zonedTimeToDate(d.year, d.month, d.day, workEnd,   0, 0, displayTz);
 
-    const todayCls = isToday(d) ? ' today-col' : '';
+    const todayCls = isTodayParts(d) ? ' today-col' : '';
     h += `<div class="day-col${todayCls}" style="height:${bodyH}px">`;
 
     /* Background slots */
@@ -722,10 +860,18 @@ function renderWeek() {
   /* Footer */
   const footer = document.getElementById('cal-footer');
   footer.style.display = 'flex';
-  const lu = data.lastUpdated
-    ? `Last updated ${new Date(data.lastUpdated).toLocaleString('en-GB', {dateStyle:'medium', timeStyle:'short'})}`
+  const updatedAt = data.lastUpdated ? new Date(data.lastUpdated) : null;
+  const tzLabel = getTimeZoneLabel(updatedAt || new Date(), displayTz);
+  const dateStr = updatedAt
+    ? new Intl.DateTimeFormat('en-GB', { timeZone: displayTz, dateStyle: 'medium' }).format(updatedAt)
     : '';
+  const timeStr = updatedAt
+    ? new Intl.DateTimeFormat('en-GB', { timeZone: displayTz, timeStyle: 'short' }).format(updatedAt)
+    : '';
+  const lu = updatedAt ? `Last updated ${dateStr} at ${timeStr} ${tzLabel}` : '';
   document.getElementById('last-updated-label').textContent = lu;
+  const tzDisplay = displayTz === 'Etc/GMT' ? 'GMT' : displayTz;
+  document.getElementById('timezone-label').textContent = tzDisplay ? `Viewing in ${tzDisplay}` : '';
 }
 
 function changeWeek(dir) {
@@ -752,18 +898,12 @@ async function loadSchedule() {
   const notice = document.getElementById('setup-notice');
   notice.style.display = data.configured ? 'none' : 'flex';
 
-  renderWeek();
-}
+  initTimezoneSelect();
+  const storedTz = localStorage.getItem('displayTz');
+  const defaultTz = storedTz || data.displayTimezone || 'Etc/GMT';
+  setDisplayTimezone(defaultTz, { render: false });
 
-async function refreshSchedule() {
-  const btn = document.getElementById('refresh-btn');
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Refreshing...';
-  }
-  const url = new URL(window.location.href);
-  url.searchParams.set('ts', Date.now().toString());
-  window.location.replace(url.toString());
+  renderWeek();
 }
 
 /* ─── Boot ──────────────────────────────────────────── */
