@@ -204,16 +204,22 @@
     .notice strong { font-weight: 600; display: block; margin-bottom: 4px; }
 
     /* ── Timezone selector ────────────────────────── */
+    .week-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
     .tz-row {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      gap: 10px;
-      margin: 4px 0 14px;
+      gap: 8px;
       flex-wrap: wrap;
+      justify-content: flex-start;
+      width: 100%;
     }
     .tz-label {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--text-tertiary);
@@ -221,6 +227,7 @@
     }
     .tz-dropdown {
       position: relative;
+      width: 100%;
     }
     .tz-button {
       display: inline-flex;
@@ -236,6 +243,15 @@
       cursor: pointer;
       box-shadow: var(--shadow-sm);
       transition: all var(--transition);
+      width: 100%;
+      justify-content: space-between;
+    }
+    .tz-button .tz-current {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 220px;
+      display: inline-block;
     }
     .tz-button:hover {
       border-color: var(--accent);
@@ -252,7 +268,7 @@
     }
     .tz-menu {
       position: absolute;
-      right: 0;
+      left: 0;
       top: calc(100% + 8px);
       width: min(360px, 80vw);
       max-height: 320px;
@@ -303,6 +319,9 @@
       box-shadow: var(--shadow-sm);
       padding: 6px;
       border: 1px solid var(--grid-line);
+      width: 280px;
+      max-width: 100%;
+      justify-content: space-between;
     }
 
     .week-nav button {
@@ -327,15 +346,22 @@
     .week-nav button:active {
       transform: scale(0.95);
     }
+    .week-nav button:disabled {
+      opacity: 0.45;
+      cursor: default;
+      transform: none;
+      background: transparent;
+    }
 
     .week-label {
       font-size: 0.95rem;
       font-weight: 600;
       letter-spacing: -0.01em;
       color: var(--text-primary);
-      min-width: 200px;
-      text-align: center;
-      padding: 0 8px;
+      min-width: 160px;
+      text-align: left;
+      padding: 0 6px;
+      flex: 1;
     }
 
     /* Legend */
@@ -484,22 +510,56 @@
       font-size: 0.65rem;
       font-weight: 600;
       color: var(--busy-text);
-      padding: 3px 8px;
-      overflow: hidden;
+      padding: 4px 8px 2px;
+      overflow: visible;
       z-index: 1;
-      white-space: nowrap;
-      text-overflow: ellipsis;
       box-shadow: var(--shadow-sm);
       transition: transform var(--transition), box-shadow var(--transition);
       min-height: 14px;
-      display: flex;
-      align-items: center;
-      line-height: 1;
+      line-height: 1.2;
+    }
+    .event-label {
+      display: block;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     .event-block:hover {
-      transform: scale(1.02);
       box-shadow: var(--shadow-md);
       z-index: 10;
+    }
+    .event-block[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 6px);
+      transform: translateX(-50%);
+      background: var(--text-primary);
+      color: var(--bg-secondary);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 6px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition);
+    }
+    .event-block[data-tooltip]::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 2px);
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: var(--text-primary);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .event-block:hover::after,
+    .event-block:hover::before {
+      opacity: 1;
     }
 
     /* Footer */
@@ -552,9 +612,10 @@
     @media (max-width: 480px) {
       .cal-header, .cal-body { grid-template-columns: repeat(7, 1fr); }
       .col-time-hdr, .col-time { display: none; }
-      .tz-row { justify-content: flex-start; }
+      .week-group { align-items: flex-start; }
+      .tz-row { width: 100%; justify-content: flex-start; }
       .tz-button { width: 100%; justify-content: space-between; }
-      .tz-menu { left: 0; right: auto; width: min(360px, 90vw); }
+      .tz-menu { right: auto; width: min(360px, 90vw); }
       .controls { flex-direction: column; align-items: stretch; }
       .week-nav { justify-content: center; }
     }
@@ -591,27 +652,27 @@
     </div>
   </div>
 
-  <div class="tz-row">
-    <span class="tz-label">Time zone</span>
-    <div class="tz-dropdown">
-      <button id="tz-button" class="tz-button" aria-haspopup="listbox" aria-expanded="false">
-        <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
-          <path d="M3 12h18M12 3a15 15 0 0 0 0 18M12 3a15 15 0 0 1 0 18"
-                fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-        <span id="tz-current">GMT (UTC+00:00)</span>
-        <span class="tz-caret">▾</span>
-      </button>
-      <div id="tz-menu" class="tz-menu" role="listbox" aria-label="Select time zone"></div>
-    </div>
-  </div>
-
   <div class="controls">
-    <div class="week-nav">
-      <button onclick="changeWeek(-1)" aria-label="Previous week">‹</button>
-      <span class="week-label" id="week-label"></span>
-      <button onclick="changeWeek(1)" aria-label="Next week">›</button>
+    <div class="week-group">
+      <div class="week-nav" id="week-nav">
+        <button id="prev-week" onclick="changeWeek(-1)" aria-label="Previous week">‹</button>
+        <span class="week-label" id="week-label"></span>
+        <button id="next-week" onclick="changeWeek(1)" aria-label="Next week">›</button>
+      </div>
+      <div class="tz-row" id="tz-row">
+        <div class="tz-dropdown">
+          <button id="tz-button" class="tz-button" aria-haspopup="listbox" aria-expanded="false">
+            <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M3 12h18M12 3a15 15 0 0 0 0 18M12 3a15 15 0 0 1 0 18"
+                    fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <span id="tz-current" class="tz-current">(UTC+00:00) Dublin, Edinburgh, Lisbon, London</span>
+            <span class="tz-caret">▾</span>
+          </button>
+          <div id="tz-menu" class="tz-menu" role="listbox" aria-label="Select time zone"></div>
+        </div>
+      </div>
     </div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot free"></div>Available</div>
@@ -654,14 +715,19 @@ setTheme(getPreferredTheme());
 const DOW  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const PX_PER_HOUR = 48;
+const GRID_PADDING = 10;
+const MIN_WEEK_OFFSET = 0;
+const MAX_WEEK_OFFSET = 4;
 
 /* ─── State ─────────────────────────────────────────── */
 let data          = null;
 let weekOffset    = 0;
 let workStart     = 8;
 let workEnd       = 19;
-let displayTz     = 'Etc/GMT';
+let displayTz     = 'Europe/London';
 let tzLoaded      = false;
+let tzMenuOptions = [];
+let tzByOffset    = new Map();
 
 /* ─── Helpers ───────────────────────────────────────── */
 const WEEKDAY_INDEX = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
@@ -764,29 +830,44 @@ function getTimeZoneLabel(date, timeZone) {
 }
 
 const TIME_ZONES = [
-  { tz: 'Etc/GMT', name: 'GMT' },
-  { tz: 'Europe/London', name: 'UK, Ireland, Lisbon' },
-  { tz: 'Europe/Paris', name: 'Paris, Madrid' },
-  { tz: 'Europe/Berlin', name: 'Berlin, Rome, Warsaw' },
+  { tz: 'Etc/GMT+12', name: 'International Date Line West' },
+  { tz: 'Pacific/Pago_Pago', name: 'Samoa' },
+  { tz: 'Pacific/Honolulu', name: 'Hawaii' },
+  { tz: 'Pacific/Marquesas', name: 'Marquesas Islands' },
+  { tz: 'America/Anchorage', name: 'Alaska' },
+  { tz: 'America/Los_Angeles', name: 'Pacific Time (US & Canada)' },
+  { tz: 'America/Denver', name: 'Mountain Time (US & Canada)' },
+  { tz: 'America/Chicago', name: 'Central Time (US & Canada)' },
+  { tz: 'America/New_York', name: 'Eastern Time (US & Canada)' },
+  { tz: 'America/Halifax', name: 'Atlantic Time (Canada)' },
+  { tz: 'America/St_Johns', name: 'Newfoundland' },
+  { tz: 'America/Argentina/Buenos_Aires', name: 'Buenos Aires' },
+  { tz: 'America/Noronha', name: 'Mid-Atlantic' },
+  { tz: 'Atlantic/Azores', name: 'Azores' },
+  { tz: 'Europe/London', name: 'Dublin, Edinburgh, Lisbon, London' },
+  { tz: 'Europe/Paris', name: 'Brussels, Copenhagen, Madrid, Paris' },
   { tz: 'Europe/Athens', name: 'Athens, Bucharest' },
-  { tz: 'Europe/Istanbul', name: 'Istanbul' },
-  { tz: 'Africa/Johannesburg', name: 'Harare, Pretoria' },
+  { tz: 'Europe/Moscow', name: 'Moscow, St. Petersburg' },
+  { tz: 'Asia/Tehran', name: 'Tehran' },
   { tz: 'Asia/Dubai', name: 'Abu Dhabi, Muscat' },
+  { tz: 'Asia/Kabul', name: 'Kabul' },
+  { tz: 'Asia/Karachi', name: 'Islamabad, Karachi' },
   { tz: 'Asia/Kolkata', name: 'Chennai, Kolkata, Mumbai, New Delhi' },
+  { tz: 'Asia/Kathmandu', name: 'Kathmandu' },
+  { tz: 'Asia/Dhaka', name: 'Astana, Dhaka' },
+  { tz: 'Asia/Yangon', name: 'Yangon (Rangoon)' },
   { tz: 'Asia/Bangkok', name: 'Bangkok, Hanoi, Jakarta' },
   { tz: 'Asia/Shanghai', name: 'Beijing, Chongqing, Hong Kong' },
+  { tz: 'Australia/Eucla', name: 'Eucla' },
   { tz: 'Asia/Tokyo', name: 'Osaka, Sapporo, Tokyo' },
-  { tz: 'Australia/Sydney', name: 'Canberra, Melbourne, Sydney' },
-  { tz: 'Pacific/Auckland', name: 'Auckland, Wellington' },
-  { tz: 'America/Sao_Paulo', name: 'Brasilia' },
-  { tz: 'America/Argentina/Buenos_Aires', name: 'Buenos Aires' },
-  { tz: 'America/Caracas', name: 'Caracas' },
-  { tz: 'America/New_York', name: 'Eastern Time (US & Canada)' },
-  { tz: 'America/Chicago', name: 'Central Time (US & Canada)' },
-  { tz: 'America/Denver', name: 'Mountain Time (US & Canada)' },
-  { tz: 'America/Los_Angeles', name: 'Pacific Time (US & Canada)' },
-  { tz: 'America/Anchorage', name: 'Alaska' },
-  { tz: 'Pacific/Honolulu', name: 'Hawaii' }
+  { tz: 'Australia/Darwin', name: 'Darwin' },
+  { tz: 'Australia/Brisbane', name: 'Brisbane' },
+  { tz: 'Australia/Adelaide', name: 'Adelaide' },
+  { tz: 'Pacific/Noumea', name: 'Solomon Is., New Caledonia' },
+  { tz: 'Asia/Kamchatka', name: 'Fiji, Kamchatka, Marshall Is.' },
+  { tz: 'Pacific/Chatham', name: 'Chatham Islands' },
+  { tz: 'Pacific/Tongatapu', name: 'Nuku\'alofa' },
+  { tz: 'Pacific/Kiritimati', name: 'Kiritimati Island' }
 ];
 
 function formatOffsetLabel(ms) {
@@ -798,9 +879,48 @@ function formatOffsetLabel(ms) {
   return `UTC${sign}${h}:${m}`;
 }
 
+function getOffsetKey(tz) {
+  return formatOffsetLabel(getTimeZoneOffsetMs(new Date(), tz));
+}
+
 function buildTimeZoneLabel(tz, name) {
   const offset = getTimeZoneOffsetMs(new Date(), tz);
   return `(${formatOffsetLabel(offset)}) ${name}`;
+}
+
+function escapeAttr(value) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+function formatTime12(date, timeZone) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }).formatToParts(date);
+  const hour = parts.find(p => p.type === 'hour')?.value || '';
+  const minute = parts.find(p => p.type === 'minute')?.value || '00';
+  const period = parts.find(p => p.type === 'dayPeriod')?.value?.toLowerCase() || '';
+  const mins = minute === '00' ? '' : `:${minute}`;
+  return `${hour}${mins}${period}`;
+}
+
+function formatEventRange(start, end, timeZone) {
+  const dateFmt = new Intl.DateTimeFormat('en-GB', { timeZone, dateStyle: 'medium' });
+  const dateStart = dateFmt.format(start);
+  const dateEnd = dateFmt.format(end);
+  const timeStart = formatTime12(start, timeZone);
+  const timeEnd = formatTime12(end, timeZone);
+  if (dateStart === dateEnd) {
+    return `${dateStart}, ${timeStart}–${timeEnd}`;
+  }
+  return `${dateStart} ${timeStart} – ${dateEnd} ${timeEnd}`;
 }
 
 function initTimezoneDropdown() {
@@ -809,14 +929,22 @@ function initTimezoneDropdown() {
   const menu = document.getElementById('tz-menu');
   if (!btn || !menu) return;
 
-  const zones = TIME_ZONES.slice().sort((a, b) => {
+  tzMenuOptions = [];
+  tzByOffset = new Map();
+  for (const z of TIME_ZONES) {
+    const key = getOffsetKey(z.tz);
+    if (tzByOffset.has(key)) continue;
+    tzByOffset.set(key, z);
+    tzMenuOptions.push({ ...z, offsetKey: key });
+  }
+  tzMenuOptions.sort((a, b) => {
     const oa = getTimeZoneOffsetMs(new Date(), a.tz);
     const ob = getTimeZoneOffsetMs(new Date(), b.tz);
     if (oa !== ob) return oa - ob;
     return a.name.localeCompare(b.name);
   });
 
-  for (const z of zones) {
+  for (const z of tzMenuOptions) {
     const opt = document.createElement('button');
     opt.className = 'tz-option';
     opt.type = 'button';
@@ -848,6 +976,8 @@ function initTimezoneDropdown() {
     if (e.key === 'Escape') closeTimezoneMenu();
   });
 
+  window.addEventListener('resize', syncWeekWidth);
+
   tzLoaded = true;
 }
 
@@ -867,21 +997,36 @@ function closeTimezoneMenu() {
   btn.setAttribute('aria-expanded', 'false');
 }
 
+function syncWeekWidth() {
+  const weekNav = document.getElementById('week-nav');
+  const tzRow = document.getElementById('tz-row');
+  const tzMenu = document.getElementById('tz-menu');
+  if (!weekNav || !tzRow) return;
+  const width = weekNav.offsetWidth;
+  if (width > 0) {
+    tzRow.style.width = `${width}px`;
+    if (tzMenu) tzMenu.style.width = `${width}px`;
+  }
+}
+
 function setDisplayTimezone(tz, opts = { render: true }) {
   const available = TIME_ZONES.some(z => z.tz === tz);
-  displayTz = available ? tz : 'Etc/GMT';
+  displayTz = available ? tz : TIME_ZONES[0].tz;
   localStorage.setItem('displayTz', displayTz);
 
   const current = document.getElementById('tz-current');
   if (current) {
-    const zone = TIME_ZONES.find(z => z.tz === displayTz) || TIME_ZONES[0];
+    const offsetKey = getOffsetKey(displayTz);
+    const zone = tzByOffset.get(offsetKey) || tzMenuOptions[0] || TIME_ZONES[0];
     current.textContent = buildTimeZoneLabel(zone.tz, zone.name);
   }
 
   const menu = document.getElementById('tz-menu');
   if (menu) {
+    const offsetKey = getOffsetKey(displayTz);
     menu.querySelectorAll('.tz-option').forEach((btn) => {
-      btn.classList.toggle('active', btn.dataset.tz === displayTz);
+      const key = getOffsetKey(btn.dataset.tz);
+      btn.classList.toggle('active', key === offsetKey);
     });
   }
 
@@ -901,6 +1046,11 @@ function renderWeek() {
   const labelEndParts = addDaysToParts(weekStartParts, 6);
   document.getElementById('week-label').textContent =
     `${fmtParts(weekStartParts)} – ${fmtParts(labelEndParts)} ${labelEndParts.year}`;
+  const prevBtn = document.getElementById('prev-week');
+  const nextBtn = document.getElementById('next-week');
+  if (prevBtn) prevBtn.disabled = weekOffset <= MIN_WEEK_OFFSET;
+  if (nextBtn) nextBtn.disabled = weekOffset >= MAX_WEEK_OFFSET;
+  syncWeekWidth();
 
   // Build days array (Mon → Sun)
   const days = [];
@@ -915,7 +1065,7 @@ function renderWeek() {
   });
 
   const hourCount = workEnd - workStart;
-  const bodyH     = hourCount * PX_PER_HOUR;
+  const bodyH     = (hourCount * PX_PER_HOUR) + (GRID_PADDING * 2);
 
   let h = '';
 
@@ -935,7 +1085,7 @@ function renderWeek() {
   h += '<div class="cal-body">';
 
   /* Time column */
-  h += '<div class="col-time">';
+  h += `<div class="col-time" style="padding:${GRID_PADDING}px 0">`;
   for (let hr = workStart; hr < workEnd; hr++) {
     h += `<div class="time-tick">${fmtTime(hr)}</div>`;
   }
@@ -947,7 +1097,7 @@ function renderWeek() {
     const dayEnd   = zonedTimeToDate(d.year, d.month, d.day, workEnd,   0, 0, displayTz);
 
     const todayCls = isTodayParts(d) ? ' today-col' : '';
-    h += `<div class="day-col${todayCls}" style="height:${bodyH}px">`;
+    h += `<div class="day-col${todayCls}" style="height:${bodyH}px;padding:${GRID_PADDING}px 0">`;
 
     /* Background slots */
     for (let i = 0; i < hourCount; i++) {
@@ -969,10 +1119,11 @@ function renderWeek() {
       const durMins   = (ce - cs) / 60000;
       if (durMins <= 0) continue;
 
-      const top    = (startMins / 60) * PX_PER_HOUR;
+      const top    = GRID_PADDING + (startMins / 60) * PX_PER_HOUR;
       const height = Math.max((durMins / 60) * PX_PER_HOUR, 14);
+      const tooltip = escapeAttr(formatEventRange(s, en, displayTz));
 
-      h += `<div class="event-block" style="top:${top}px;height:${height}px" title="Busy">Busy</div>`;
+      h += `<div class="event-block" style="top:${top}px;height:${height}px" data-tooltip="${tooltip}" aria-label="${tooltip}"><span class="event-label">Busy</span></div>`;
     }
 
     h += '</div>';
@@ -986,7 +1137,7 @@ function renderWeek() {
   const footer = document.getElementById('cal-footer');
   footer.style.display = 'flex';
   const updatedAt = data.lastUpdated ? new Date(data.lastUpdated) : null;
-  const tzLabel = getTimeZoneLabel(updatedAt || new Date(), displayTz);
+  const tzLabel = formatOffsetLabel(getTimeZoneOffsetMs(updatedAt || new Date(), displayTz));
   const dateStr = updatedAt
     ? new Intl.DateTimeFormat('en-GB', { timeZone: displayTz, dateStyle: 'medium' }).format(updatedAt)
     : '';
@@ -998,7 +1149,7 @@ function renderWeek() {
 }
 
 function changeWeek(dir) {
-  weekOffset = Math.max(-2, Math.min(weekOffset + dir, 10));
+  weekOffset = Math.max(MIN_WEEK_OFFSET, Math.min(weekOffset + dir, MAX_WEEK_OFFSET));
   renderWeek();
 }
 
@@ -1023,7 +1174,7 @@ async function loadSchedule() {
 
   initTimezoneDropdown();
   const storedTz = localStorage.getItem('displayTz');
-  const defaultTz = storedTz || data.displayTimezone || 'Etc/GMT';
+  const defaultTz = storedTz || data.displayTimezone || TIME_ZONES[0].tz;
   setDisplayTimezone(defaultTz, { render: false });
 
   renderWeek();
