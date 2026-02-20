@@ -67,6 +67,11 @@ def parse_ics_url(url, range_start, range_end, local_tz):
         if not dtstart:
             continue
 
+        # Skip events marked as "free" (transparent)
+        transp = component.get("TRANSP")
+        if transp and str(transp).upper() == "TRANSPARENT":
+            continue
+
         raw_start = dtstart.dt
         raw_end = dtend.dt if dtend else raw_start
 
