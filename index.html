@@ -280,6 +280,37 @@
       border: 1.5px solid var(--busy-border);
     }
 
+    .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .refresh-btn {
+      background: var(--card);
+      border: 1px solid var(--grid-line);
+      border-radius: 980px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition);
+    }
+    .refresh-btn:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .refresh-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
     /* ── Calendar card ─────────────────────────────── */
     .cal-card {
       background: var(--card);
@@ -495,9 +526,14 @@
       <span class="week-label" id="week-label"></span>
       <button onclick="changeWeek(1)" aria-label="Next week">›</button>
     </div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot free"></div>Available</div>
-      <div class="legend-item"><div class="legend-dot busy"></div>Busy</div>
+    <div class="controls-right">
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot free"></div>Available</div>
+        <div class="legend-item"><div class="legend-dot busy"></div>Busy</div>
+      </div>
+      <button id="refresh-btn" class="refresh-btn" onclick="refreshSchedule()" aria-label="Refresh schedule">
+        Refresh
+      </button>
     </div>
   </div>
 
@@ -683,29 +719,52 @@ function changeWeek(dir) {
   renderWeek();
 }
 
+async function loadSchedule() {
+  const res = await fetch(`schedule.json?_=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  data = await res.json();
+
+  workStart = data.workdayStart ?? 8;
+  workEnd   = data.workdayEnd   ?? 19;
+
+  const name  = data.ownerName           || 'Schedule';
+  const hours = data.weeklyProjectHours  || 20;
+
+  document.getElementById('page-title').textContent    = `${name}'s Availability`;
+  document.getElementById('page-subtitle').textContent =
+    `${hours} hours/week available for the Dashboard project`;
+  document.title = `${name}'s Availability`;
+
+  const notice = document.getElementById('setup-notice');
+  notice.style.display = data.configured ? 'none' : 'flex';
+
+  renderWeek();
+}
+
+async function refreshSchedule() {
+  const btn = document.getElementById('refresh-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Refreshing...';
+  }
+  try {
+    await loadSchedule();
+  } catch (err) {
+    document.getElementById('cal-card').innerHTML =
+      '<div class="state-msg">Could not load schedule.json — please check the setup.</div>';
+    console.error(err);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Refresh';
+    }
+  }
+}
+
 /* ─── Boot ──────────────────────────────────────────── */
 async function init() {
   try {
-    const res  = await fetch(`schedule.json?_=${Date.now()}`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    data = await res.json();
-
-    workStart = data.workdayStart ?? 8;
-    workEnd   = data.workdayEnd   ?? 19;
-
-    const name  = data.ownerName           || 'Schedule';
-    const hours = data.weeklyProjectHours  || 20;
-
-    document.getElementById('page-title').textContent    = `${name}'s Availability`;
-    document.getElementById('page-subtitle').textContent =
-      `${hours} hours/week available for the Dashboard project`;
-    document.title = `${name}'s Availability`;
-
-    if (!data.configured) {
-      document.getElementById('setup-notice').style.display = 'flex';
-    }
-
-    renderWeek();
+    await loadSchedule();
   } catch (err) {
     document.getElementById('cal-card').innerHTML =
       '<div class="state-msg">Could not load schedule.json — please check the setup.</div>';
