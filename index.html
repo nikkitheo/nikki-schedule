@@ -126,10 +126,16 @@
       backdrop-filter: saturate(180%) blur(20px);
       -webkit-backdrop-filter: saturate(180%) blur(20px);
       border-bottom: 1px solid var(--grid-line);
-      padding: 20px 32px;
+      padding: 16px 0;
+    }
+
+    .header-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
       transition: background var(--transition);
     }
 
@@ -587,7 +593,14 @@
     /* ── Responsive ────────────────────────────────── */
     @media (max-width: 768px) {
       header {
-        padding: 16px 20px;
+        padding: 12px 0;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .header-inner {
+        padding: 0 16px;
+        width: 100%;
         flex-direction: column;
         gap: 12px;
         align-items: flex-start;
@@ -624,21 +637,23 @@
 <body>
 
 <header>
-  <div class="header-left">
-    <h1 id="page-title">Availability</h1>
-    <p id="page-subtitle">Loading...</p>
+  <div class="header-inner">
+    <div class="header-left">
+      <h1 id="page-title">Availability</h1>
+      <p id="page-subtitle">Loading...</p>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle dark/light mode">
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+              fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+              fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
-  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle dark/light mode">
-    <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/>
-      <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-            fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-    </svg>
-    <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-            fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
 </header>
 
 <div class="container">
