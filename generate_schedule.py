@@ -35,12 +35,12 @@ ROOT = Path(__file__).parent
 
 
 def get_fetch_range(tz):
-    """Return (start, end) covering the current week plus the next 7 weeks."""
+    """Return (start, end) covering the current week plus the next 4 weeks."""
     today = date.today()
     # Start from the Monday of the current week
     monday = today - timedelta(days=today.weekday())
     range_start = tz.localize(datetime(monday.year, monday.month, monday.day, 0, 0, 0))
-    range_end = range_start + timedelta(weeks=8)
+    range_end = range_start + timedelta(weeks=5)
     return range_start, range_end
 
 

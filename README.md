@@ -149,8 +149,8 @@ unless you want to change the config.
 **Change update frequency:** Edit `.github/workflows/update-schedule.yml`.
 Find the `cron:` line and adjust. Use https://crontab.guru to build cron expressions.
 
-**Show more weeks in advance:** The script fetches 8 weeks by default.
-Adjust `timedelta(weeks=8)` in `generate_schedule.py` if needed.
+**Show more weeks in advance:** The script fetches 5 weeks by default (current + 4).
+Adjust `timedelta(weeks=5)` in `generate_schedule.py` if needed.
 
 **Multiple ICS URLs:** Add them all to the `ICS_URLS` secret, separated by commas.
 
