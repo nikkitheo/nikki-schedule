@@ -1,10 +1,10 @@
 {
-  "lastUpdated": null,
+  "lastUpdated": "2026-02-20T15:13:30.451204+00:00",
   "timezone": "Europe/London",
   "ownerName": "Nikki",
   "weeklyProjectHours": 20,
-  "workdayStart": 8,
-  "workdayEnd": 19,
+  "workdayStart": 9,
+  "workdayEnd": 18,
   "configured": false,
   "events": []
 }
