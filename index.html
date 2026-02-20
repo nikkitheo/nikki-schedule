@@ -21,8 +21,8 @@
       --busy-bg:         linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
       --busy-border:     #f87171;
       --busy-text:       #991b1b;
-      --free-bg:         linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-      --free-border:     #34d399;
+      --free-bg:         #ffffff;
+      --free-border:     #e2e8f0;
       --grid-line:       rgba(0, 0, 0, 0.06);
       --shadow-sm:       0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
       --shadow-md:       0 4px 6px rgba(0,0,0,0.04), 0 10px 40px rgba(0,0,0,0.06);
@@ -51,8 +51,8 @@
         --busy-bg:         linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
         --busy-border:     #dc2626;
         --busy-text:       #fecaca;
-        --free-bg:         linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-        --free-border:     #10b981;
+        --free-bg:         #1e1e32;
+        --free-border:     rgba(255, 255, 255, 0.12);
         --grid-line:       rgba(255, 255, 255, 0.06);
         --shadow-sm:       0 1px 2px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
         --shadow-md:       0 4px 6px rgba(0,0,0,0.2), 0 10px 40px rgba(0,0,0,0.25);
@@ -74,8 +74,8 @@
       --busy-bg:         linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
       --busy-border:     #dc2626;
       --busy-text:       #fecaca;
-      --free-bg:         linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-      --free-border:     #10b981;
+      --free-bg:         #1e1e32;
+      --free-border:     rgba(255, 255, 255, 0.12);
       --grid-line:       rgba(255, 255, 255, 0.06);
       --shadow-sm:       0 1px 2px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
       --shadow-md:       0 4px 6px rgba(0,0,0,0.2), 0 10px 40px rgba(0,0,0,0.25);
@@ -96,8 +96,8 @@
       --busy-bg:         linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
       --busy-border:     #f87171;
       --busy-text:       #991b1b;
-      --free-bg:         linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-      --free-border:     #34d399;
+      --free-bg:         #ffffff;
+      --free-border:     #e2e8f0;
       --grid-line:       rgba(0, 0, 0, 0.06);
       --shadow-sm:       0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
       --shadow-md:       0 4px 6px rgba(0,0,0,0.04), 0 10px 40px rgba(0,0,0,0.06);
@@ -154,23 +154,30 @@
     }
 
     .theme-toggle {
-      background: var(--accent-light);
-      border: none;
-      border-radius: var(--radius-md);
+      background: var(--card);
+      border: 1px solid var(--grid-line);
+      border-radius: 999px;
       width: 44px;
       height: 44px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
       transition: all var(--transition);
+      color: var(--text-primary);
     }
     .theme-toggle:hover {
       background: var(--accent);
       color: white;
       box-shadow: var(--shadow-glow);
     }
+    .theme-toggle svg {
+      width: 18px;
+      height: 18px;
+      display: none;
+    }
+    [data-theme="light"] .theme-toggle .icon-sun { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
 
     /* ── Page layout ───────────────────────────────── */
     .container {
@@ -453,7 +460,7 @@
       gap: 12px;
       flex-wrap: wrap;
       border-top: 1px solid var(--grid-line);
-      background: var(--bg-secondary);
+      background: transparent;
     }
 
     /* State messages */
@@ -505,7 +512,15 @@
     <p id="page-subtitle">Loading...</p>
   </div>
   <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle dark/light mode">
-    <span id="theme-icon">🌙</span>
+    <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+            fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+            fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
   </button>
 </header>
 
@@ -558,7 +573,6 @@ function getPreferredTheme() {
 function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('theme', theme);
-  document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 function toggleTheme() {
@@ -747,18 +761,9 @@ async function refreshSchedule() {
     btn.disabled = true;
     btn.textContent = 'Refreshing...';
   }
-  try {
-    await loadSchedule();
-  } catch (err) {
-    document.getElementById('cal-card').innerHTML =
-      '<div class="state-msg">Could not load schedule.json — please check the setup.</div>';
-    console.error(err);
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Refresh';
-    }
-  }
+  const url = new URL(window.location.href);
+  url.searchParams.set('ts', Date.now().toString());
+  window.location.replace(url.toString());
 }
 
 /* ─── Boot ──────────────────────────────────────────── */
