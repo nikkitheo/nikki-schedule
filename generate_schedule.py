@@ -67,9 +67,14 @@ def parse_ics_url(url, range_start, range_end, local_tz):
         if not dtstart:
             continue
 
-        # Skip events marked as "free" (transparent)
+        # Skip events marked as "free" (transparent) - standard ICS
         transp = component.get("TRANSP")
         if transp and str(transp).upper() == "TRANSPARENT":
+            continue
+
+        # Skip events marked as "free" in Outlook/Microsoft calendars
+        busystatus = component.get("X-MICROSOFT-CDO-BUSYSTATUS")
+        if busystatus and str(busystatus).upper() == "FREE":
             continue
 
         raw_start = dtstart.dt
