@@ -1174,7 +1174,7 @@ async function loadSchedule() {
 
   initTimezoneDropdown();
   const storedTz = localStorage.getItem('displayTz');
-  const defaultTz = storedTz || data.displayTimezone || TIME_ZONES[0].tz;
+  const defaultTz = storedTz || data.displayTimezone || 'Europe/London';
   setDisplayTimezone(defaultTz, { render: false });
 
   renderWeek();
