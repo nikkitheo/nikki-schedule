@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Availability Schedule</title>
+  <style>
+    /* ── Tokens ────────────────────────────────────── */
+    :root {
+      --bg:            #f5f5f7;
+      --card:          #ffffff;
+      --text-primary:  #1d1d1f;
+      --text-secondary:#6e6e73;
+      --text-tertiary: #aeaeb2;
+      --accent:        #0071e3;
+      --accent-light:  rgba(0, 113, 227, 0.10);
+      --today-col:     rgba(0, 113, 227, 0.04);
+      --busy-bg:       rgba(0, 0, 0, 0.055);
+      --busy-border:   rgba(0, 0, 0, 0.18);
+      --free-bg:       transparent;
+      --grid-line:     rgba(0, 0, 0, 0.06);
+      --shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+      --radius-xl:     20px;
+      --radius-lg:     14px;
+      --radius-md:     10px;
+      --radius-sm:     7px;
+    }
+
+    /* ── Reset ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text',
+                   'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Frosted glass header ──────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(245, 245, 247, 0.82);
+      backdrop-filter: saturate(180%) blur(24px);
+      -webkit-backdrop-filter: saturate(180%) blur(24px);
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.12);
+      padding: 18px 32px 16px;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text-primary);
+    }
+    header p {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    /* ── Page layout ───────────────────────────────── */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    /* ── Setup notice ──────────────────────────────── */
+    .notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(255, 214, 10, 0.12);
+      border: 0.5px solid rgba(255, 180, 0, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      margin-bottom: 22px;
+      font-size: 0.84rem;
+      color: #3a2a00;
+      line-height: 1.5;
+    }
+    .notice-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+    .notice strong { font-weight: 600; display: block; margin-bottom: 2px; }
+
+    /* ── Controls bar ──────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Week navigation */
+    .week-nav {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--card);
+      border-radius: 980px;          /* pill */
+      box-shadow: var(--shadow-sm);
+      padding: 4px;
+    }
+
+    .week-nav button {
+      background: transparent;
+      border: none;
+      border-radius: 980px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+      flex-shrink: 0;
+    }
+    .week-nav button:hover  { background: rgba(0, 113, 227, 0.08); }
+    .week-nav button:active { background: rgba(0, 113, 227, 0.15); }
+
+    .week-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      min-width: 188px;
+      text-align: center;
+      padding: 0 2px;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .legend-dot.free { background: var(--card); border: 1.5px solid var(--grid-line); }
+    .legend-dot.busy { background: rgba(0,0,0,0.18); }
+
+    /* ── Calendar card ─────────────────────────────── */
+    .cal-card {
+      background: var(--card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    /* Day header row */
+    .cal-header {
+      display: grid;
+      grid-template-columns: 52px repeat(7, 1fr);
+      border-bottom: 0.5px solid var(--grid-line);
+    }
+
+    .col-time-hdr { /* spacer */ }
+
+    .day-hdr {
+      padding: 12px 6px 10px;
+      text-align: center;
+      border-left: 0.5px solid var(--grid-line);
+      transition: background 0.2s;
+    }
+    .day-hdr.today { background: var(--today-col); }
+
+    .day-hdr .dow {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .day-hdr.today .dow { color: var(--accent); }
+
+    .day-hdr .dom {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      margin: 4px auto 0;
+    }
+    .day-hdr.today .dom {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+    }
+
+    /* Body grid */
+    .cal-body {
+      display: grid;
+      grid-template-columns: 52px repeat(7, 1fr);
+    }
+
+    .col-time { /* time labels */ }
+
+    .time-tick {
+      height: 52px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 4px 10px 0 0;
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--text-tertiary);
+      border-top: 0.5px solid var(--grid-line);
+    }
+    .time-tick:first-child { border-top: none; }
+
+    .day-col {
+      position: relative;
+      border-left: 0.5px solid var(--grid-line);
+    }
+    .day-col.today-col { background: var(--today-col); }
+
+    .bg-slot {
+      height: 52px;
+      border-top: 0.5px solid var(--grid-line);
+      background: var(--free-bg);
+    }
+    .bg-slot:first-child { border-top: none; }
+
+    /* Busy event block */
+    .event-block {
+      position: absolute;
+      left: 3px;
+      right: 3px;
+      background: var(--busy-bg);
+      border-left: 2.5px solid var(--busy-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.64rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 3px 6px;
+      overflow: hidden;
+      z-index: 1;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      backdrop-filter: blur(0);
+    }
+
+    /* Footer */
+    .cal-footer {
+      padding: 10px 18px;
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      border-top: 0.5px solid var(--grid-line);
+    }
+
+    /* State messages */
+    .state-msg {
+      padding: 72px 32px;
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 0.88rem;
+    }
+
+    /* ── Responsive ────────────────────────────────── */
+    @media (max-width: 680px) {
+      header { padding: 14px 16px 12px; flex-direction: column; gap: 2px; }
+      header h1 { font-size: 1.1rem; }
+      .container { padding: 18px 12px 48px; }
+      .cal-header, .cal-body { grid-template-columns: 38px repeat(7, 1fr); }
+      .col-time-hdr, .col-time { display: none; }
+      .cal-header, .cal-body { grid-template-columns: repeat(7, 1fr); }
+      .day-hdr { padding: 8px 2px; }
+      .day-hdr .dow { font-size: 0.58rem; }
+      .day-hdr .dom { font-size: 0.9rem; width: 26px; height: 26px; }
+      .week-label { font-size: 0.82rem; min-width: 150px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1 id="page-title">Availability</h1>
+  <p id="page-subtitle">Loading…</p>
+</header>
+
+<div class="container">
+
+  <div id="setup-notice" class="notice" style="display:none">
+    <span class="notice-icon">⚙️</span>
+    <div>
+      <strong>Setup not yet complete</strong>
+      No calendar connected. Add your ICS URL(s) to <code>config.json</code>
+      then run the "Update Schedule" GitHub Action.
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="week-nav">
+      <button onclick="changeWeek(-1)" aria-label="Previous week">&#8249;</button>
+      <span class="week-label" id="week-label"></span>
+      <button onclick="changeWeek(1)"  aria-label="Next week">&#8250;</button>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot free"></div>Available</div>
+      <div class="legend-item"><div class="legend-dot busy"></div>Busy</div>
+    </div>
+  </div>
+
+  <div class="cal-card" id="cal-card">
+    <div class="state-msg">Loading schedule…</div>
+  </div>
+
+  <div class="cal-footer" id="cal-footer" style="display:none">
+    <span id="last-updated-label"></span>
+    <span>White = available &middot; Grey = busy</span>
+  </div>
+
+</div>
+
+<script>
+/* ─── Constants ─────────────────────────────────────────── */
+const DOW  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const PX_PER_HOUR = 52; // matches .bg-slot height
+
+/* ─── State ─────────────────────────────────────────────── */
+let data          = null;
+let weekOffset    = 0;   // 0 = current week
+let workStart     = 8;
+let workEnd       = 19;
+
+/* ─── Helpers ───────────────────────────────────────────── */
+function getMondayOf(d) {
+  const t = new Date(d);
+  const dow = t.getDay();
+  t.setDate(t.getDate() - (dow === 0 ? 6 : dow - 1));
+  t.setHours(0, 0, 0, 0);
+  return t;
+}
+
+function fmt(d) {
+  return `${d.getDate()} ${MONS[d.getMonth()]}`;
+}
+
+function isToday(d) {
+  const n = new Date();
+  return d.getDate() === n.getDate() && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtTime(hour) {
+  if (hour === 0)  return '12am';
+  if (hour === 12) return '12pm';
+  return hour < 12 ? `${hour}am` : `${hour - 12}pm`;
+}
+
+/* ─── Render ────────────────────────────────────────────── */
+function renderWeek() {
+  if (!data) return;
+
+  const baseMonday = getMondayOf(new Date());
+  const weekStart  = new Date(baseMonday);
+  weekStart.setDate(baseMonday.getDate() + weekOffset * 7);
+
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 7);
+
+  // Week label
+  const labelEnd = new Date(weekStart);
+  labelEnd.setDate(weekStart.getDate() + 6);
+  document.getElementById('week-label').textContent =
+    `${fmt(weekStart)} – ${fmt(labelEnd)} ${labelEnd.getFullYear()}`;
+
+  // Build days array (Mon → Sun)
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    days.push(d);
+  }
+
+  // Filter events to this week
+  const weekEvents = (data.events || []).filter(e => {
+    const s = new Date(e.start), en = new Date(e.end);
+    return s < weekEnd && en > weekStart;
+  });
+
+  const hourCount = workEnd - workStart;
+  const bodyH     = hourCount * PX_PER_HOUR;
+
+  let h = '';
+
+  /* Header row */
+  h += '<div class="cal-header">';
+  h += '<div class="col-time-hdr"></div>';
+  for (const d of days) {
+    const cls = isToday(d) ? 'day-hdr today' : 'day-hdr';
+    h += `<div class="${cls}">
+      <div class="dow">${DOW[d.getDay()]}</div>
+      <div class="dom">${d.getDate()}</div>
+    </div>`;
+  }
+  h += '</div>';
+
+  /* Body */
+  h += '<div class="cal-body">';
+
+  /* Time column */
+  h += '<div class="col-time">';
+  for (let hr = workStart; hr < workEnd; hr++) {
+    h += `<div class="time-tick">${fmtTime(hr)}</div>`;
+  }
+  h += '</div>';
+
+  /* Day columns */
+  for (const d of days) {
+    const dayStart = new Date(d); dayStart.setHours(workStart, 0, 0, 0);
+    const dayEnd   = new Date(d); dayEnd.setHours(workEnd,   0, 0, 0);
+
+    const todayCls = isToday(d) ? ' today-col' : '';
+    h += `<div class="day-col${todayCls}" style="height:${bodyH}px">`;
+
+    /* Background slots (green = free) */
+    for (let i = 0; i < hourCount; i++) {
+      h += '<div class="bg-slot"></div>';
+    }
+
+    /* Events */
+    const dayEvts = weekEvents.filter(e => {
+      const s = new Date(e.start), en = new Date(e.end);
+      return s < dayEnd && en > dayStart;
+    });
+
+    for (const ev of dayEvts) {
+      const s  = new Date(ev.start);
+      const en = new Date(ev.end);
+      const cs = s  < dayStart ? dayStart : s;
+      const ce = en > dayEnd   ? dayEnd   : en;
+      const startMins = (cs - dayStart) / 60000;
+      const durMins   = (ce - cs) / 60000;
+      if (durMins <= 0) continue;
+
+      const top    = (startMins / 60) * PX_PER_HOUR;
+      const height = Math.max((durMins / 60) * PX_PER_HOUR, 4);
+
+      h += `<div class="event-block" style="top:${top}px;height:${height}px" title="Busy">
+        ${height > 16 ? 'Busy' : ''}
+      </div>`;
+    }
+
+    h += '</div>'; // day-col
+  }
+
+  h += '</div>'; // cal-body
+
+  document.getElementById('cal-card').innerHTML = h;
+
+  /* Footer */
+  const footer = document.getElementById('cal-footer');
+  footer.style.display = 'flex';
+  const lu = data.lastUpdated
+    ? `Updated ${new Date(data.lastUpdated).toLocaleString('en-GB', {dateStyle:'medium', timeStyle:'short'})}`
+    : '';
+  document.getElementById('last-updated-label').textContent = lu;
+}
+
+function changeWeek(dir) {
+  weekOffset = Math.max(-2, Math.min(weekOffset + dir, 10));
+  renderWeek();
+}
+
+/* ─── Boot ──────────────────────────────────────────────── */
+async function init() {
+  try {
+    const res  = await fetch(`schedule.json?_=${Date.now()}`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    data = await res.json();
+
+    workStart = data.workdayStart ?? 8;
+    workEnd   = data.workdayEnd   ?? 19;
+
+    const name  = data.ownerName           || 'Schedule';
+    const hours = data.weeklyProjectHours  || 20;
+
+    document.getElementById('page-title').textContent    = `${name}'s Availability`;
+    document.getElementById('page-subtitle').textContent =
+      `${hours} hours/week available for project collaboration`;
+    document.title = `${name}'s Availability`;
+
+    if (!data.configured) {
+      document.getElementById('setup-notice').style.display = 'block';
+    }
+
+    renderWeek();
+  } catch (err) {
+    document.getElementById('cal-card').innerHTML =
+      '<div class="state-msg">⚠️ Could not load schedule.json — please check the setup.</div>';
+    console.error(err);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

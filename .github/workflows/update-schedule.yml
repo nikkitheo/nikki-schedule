@@ -1,0 +1,45 @@
+name: Update Schedule
+
+on:
+  # Run automatically every day at 05:00 UTC (06:00 BST / 07:00 CEST)
+  schedule:
+    - cron: '0 5 * * *'
+
+  # Also allow triggering manually from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # needed to commit schedule.json back to the repo
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install icalendar requests pytz
+
+      - name: Generate schedule.json
+        env:
+          ICS_URLS: ${{ secrets.ICS_URLS }}
+        run: python generate_schedule.py
+
+      - name: Commit and push if schedule changed
+        run: |
+          git config user.name  "Schedule Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add schedule.json
+          if git diff --staged --quiet; then
+            echo "No changes — schedule is already up to date."
+          else
+            git commit -m "chore: update schedule $(date -u +'%Y-%m-%d')"
+            git push
+          fi
