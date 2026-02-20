@@ -38,7 +38,7 @@ Find the instructions for your app below.
 #### Apple Calendar / iCloud
 1. On Mac: right-click the calendar → **Share Calendar**
 2. Tick **"Public Calendar"** → copy the link shown
-3. Change `webcal://` at the start to `https://` before pasting it into `config.json`
+3. Change `webcal://` at the start to `https://` before adding it to the `ICS_URLS` secret
 
 #### Outlook / Microsoft 365
 1. Go to **Outlook on the web → Settings → View all Outlook settings**
@@ -51,7 +51,7 @@ Most apps that sync with Google, iCloud, or Exchange will also show you an ICS
 export URL in their settings. Look for "Share", "Publish", or "Export" options.
 
 If you use **multiple calendars** (e.g. work + personal), you can add more than
-one URL to `config.json` — the script merges them all.
+one URL to the `ICS_URLS` secret, separated by commas — the script merges them all.
 
 ---
 
@@ -65,10 +65,7 @@ Open `config.json` and update the values:
   "weeklyProjectHours": 20,
   "timezone": "Europe/London",
   "workdayStart": 8,
-  "workdayEnd": 19,
-  "icsUrls": [
-    "https://calendar.google.com/calendar/ical/your-secret-url/basic.ics"
-  ]
+  "workdayEnd": 19
 }
 ```
 
@@ -79,10 +76,21 @@ Open `config.json` and update the values:
 | `timezone` | Your local timezone (e.g. `Europe/London`, `America/New_York`, `Europe/Paris`) |
 | `workdayStart` | Hour the calendar grid starts (24-hour, e.g. `8` = 8am) |
 | `workdayEnd` | Hour the calendar grid ends (24-hour, e.g. `19` = 7pm) |
-| `icsUrls` | List of ICS URLs — add one per line for multiple calendars |
 
 A list of timezone names is at: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 (use the value in the **TZ identifier** column)
+
+### Step 2b — Add your ICS URL(s) as a GitHub Secret
+
+Your calendar URLs are stored as an encrypted GitHub Secret, not in the code, so they're never visible to anyone.
+
+1. In your repo, go to **Settings → Secrets and variables → Actions → New repository secret**
+2. Name it exactly: `ICS_URLS`
+3. Paste your ICS URL(s) as the value — if you have more than one, separate them with a comma:
+   ```
+   https://first-calendar.ics,https://second-calendar.ics
+   ```
+4. Click **Add secret**
 
 ---
 
@@ -144,7 +152,7 @@ Find the `cron:` line and adjust. Use https://crontab.guru to build cron express
 **Show more weeks in advance:** The script fetches 5 weeks by default.
 Adjust `timedelta(weeks=5)` in `generate_schedule.py` if needed.
 
-**Multiple ICS URLs:** Just add more entries to the `icsUrls` array in `config.json`.
+**Multiple ICS URLs:** Add them all to the `ICS_URLS` secret, separated by commas.
 
 ---
 
@@ -154,6 +162,6 @@ Adjust `timedelta(weeks=5)` in `generate_schedule.py` if needed.
 |------|---------|
 | `index.html` | The public-facing webpage (reads `schedule.json`) |
 | `schedule.json` | Auto-generated availability data (updated by GitHub Action) |
-| `config.json` | Your settings and ICS URL(s) — edit this |
+| `config.json` | Your display settings (name, timezone, hours) — edit this |
 | `generate_schedule.py` | Script that fetches ICS and writes `schedule.json` |
 | `.github/workflows/update-schedule.yml` | GitHub Action that runs the script daily |
