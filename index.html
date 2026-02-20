@@ -507,7 +507,6 @@
 
   <div class="cal-footer" id="cal-footer" style="display:none">
     <span id="last-updated-label"></span>
-    <span>Green = available · Red = busy</span>
   </div>
 
 </div>
@@ -674,7 +673,7 @@ function renderWeek() {
   const footer = document.getElementById('cal-footer');
   footer.style.display = 'flex';
   const lu = data.lastUpdated
-    ? `Updated ${new Date(data.lastUpdated).toLocaleString('en-GB', {dateStyle:'medium', timeStyle:'short'})}`
+    ? `Last updated ${new Date(data.lastUpdated).toLocaleString('en-GB', {dateStyle:'medium', timeStyle:'short'})}`
     : '';
   document.getElementById('last-updated-label').textContent = lu;
 }
