@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-09T21:40:50.824198+01:00",
+  "lastUpdated": "2026-07-10T11:12:54.110331+01:00",
   "timezone": "Europe/London",
   "ownerName": "Nikki",
   "weeklyProjectHours": 20,
@@ -35,6 +35,11 @@
     {
       "start": "2026-07-09T15:30:00+01:00",
       "end": "2026-07-09T17:30:00+01:00",
+      "summary": "Busy"
+    },
+    {
+      "start": "2026-07-10T11:00:00+01:00",
+      "end": "2026-07-10T12:00:00+01:00",
       "summary": "Busy"
     },
     {
