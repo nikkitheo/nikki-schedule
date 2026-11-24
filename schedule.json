@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-11-24T04:07:12.909951+00:00",
+  "lastUpdated": "2026-11-24T18:26:20.551456+00:00",
   "timezone": "Europe/London",
   "ownerName": "Nikki",
   "weeklyProjectHours": 20,
@@ -7,6 +7,11 @@
   "workdayEnd": 18,
   "configured": true,
   "events": [
+    {
+      "start": "2026-11-26T14:30:00+00:00",
+      "end": "2026-11-26T15:10:00+00:00",
+      "summary": "Busy"
+    },
     {
       "start": "2026-12-01T13:00:00+00:00",
       "end": "2026-12-01T14:00:00+00:00",
